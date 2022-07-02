@@ -13,7 +13,7 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-const sequelize = new Sequelize(
+const db = new Sequelize(
     process.env.DB_NAME,
     process.env.DB_USER,
     process.env.DB_PASSWORD,
@@ -41,18 +41,73 @@ async function prompts(){
                 "Add role",
                 "Add employee",
                 "Edit employee",
-                "Remove employee",
                 "Exit"
             ]
         }
     ])
 }
 
+// function to determine what to do based on initial answer choice
+function response(action) {
+    if (action === "View employees"){
+        viewEmployees();
+        prompts(); 
+    }
+    else if(action === "View roles"){
+        viewRoles();
+        prompts(); 
+    }
+    else if(action === "View departments"){
+        viewDepartment(); 
+        prompts();
+    }
+    else if(action === "Add department"){ 
+        const depName = getDepartmentName(); 
+        addDepartment(depName);
+        console.log(depName); 
+        prompts();
+    }
+    else if(action === "Add role"){
+        addRole();
+        prompts();
+    }
+    else if(action === "Add employee"){
+        addEmployee();
+        prompts();
+    }
+    else if(action === "Edit employee"){
+        editEmployee();
+        prompts();
+    }
+    else {
+        db.close(); 
+        return; 
+    }
+}
+
+
+async function getDepartmentName(){
+    return inquirer.prompt([
+        {
+            type: 'input',
+            message: "What is the new department name?",
+            name: 'departmentName'
+        }
+    ])
+}
+
+db.query('SELECT * FROM department', function (err, results){
+    console.log(results); 
+})
+
 async function viewDepartment() {
     // select all the departments
     const sql = `SELECT * FROM department`;
 
     // asks the query then returns the data in a table
+    db.query(sql, function (err, results) {
+        console.table(results); 
+    })
     const rows = await db.query(sql);
     console.table(rows); 
     //do I have to return rows???
@@ -117,3 +172,5 @@ app.use((req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+
