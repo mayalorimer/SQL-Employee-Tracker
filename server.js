@@ -48,6 +48,47 @@ async function prompts(){
     ])
 }
 
+async function viewDepartment() {
+    // select all the departments
+    const sql = `SELECT * FROM department`;
+
+    // asks the query then returns the data in a table
+    const rows = await db.query(sql);
+    console.table(rows); 
+    //do I have to return rows???
+};
+
+async function viewRoles(){
+    // select all the roles 
+    const sql = `SELECT * FROM role`;
+
+    const rows = await db.query(sql);
+    console.table(rows); 
+};
+
+async function viewEmployees(){
+    const sql = `SELECT * FROM employee`;
+
+    const rows = await db.query(sql);
+    console.table(rows); 
+}
+
+// function to add a new department
+async function addDepartment(department){
+    const departmentName = department.name;
+    const sql = `INSERT INTO department (name) VALUES = ?`;
+    const rows = await db.query(sql, departmentName);
+    console.log(`New department added named ${departmentName}`);
+}
+
+
+
+
+
+addRole()
+addEmployee()
+editEmployee()
+
 
 
 
