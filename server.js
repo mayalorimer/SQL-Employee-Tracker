@@ -81,13 +81,30 @@ async function addDepartment(department){
     console.log(`New department added named ${departmentName}`);
 }
 
+async function addRole(role) {
+    const departmentId = await role.department_id;
+    const salary = role.salary;
+    const title = role.title;
+    const sql = `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`;
+    const rows = await db.query(sql, [title, salary, departmentId]);
+    console.log(`Added role ${title}`); 
+}
 
+async function addEmployee(employee){
+    const roleId = await employee.role;
+    const managerId = await employee.manager;
+    const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
+    const args = [employee.first_name, employee.last_name, roleId, managerId];
+    const rows = await db.query(sql, args);
+    console.log(`${employee.first_name} ${employee.last_name} was added`);
+}
 
+// prompted to select an employee to update and their new role which is then updated in the database
+async function editEmployee(employeeInfo){
 
+}
+    
 
-addRole()
-addEmployee()
-editEmployee()
 
 
 

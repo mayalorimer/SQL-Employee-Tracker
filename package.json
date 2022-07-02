@@ -19,8 +19,11 @@
   },
   "homepage": "https://github.com/mayalorimer/SQL-Employee-Tracker#readme",
   "dependencies": {
+    "dotenv": "^16.0.1",
+    "express": "^4.17.1",
     "console.table": "^0.10.0",
-    "inquirer": "^9.0.0",
-    "mysql2": "^2.3.3"
+    "inquirer": "^6.3.1",
+    "mysql2": "^2.3.3",
+    "sequelize": "^6.3.5"
   }
 }
