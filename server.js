@@ -6,12 +6,13 @@ const console = require('console');
 const db = require('./db/connection');
 
 
+
 const PORT = process.env.PROT || 3001;
 
 
 
 //function for inquirer prompts for app
-async function prompts(){
+function prompts(){
     inquirer.prompt([
         {
             type: "list",
@@ -66,7 +67,7 @@ function response(answers) {
 }
 
 
-async function getDepartmentName(){
+function getDepartmentName(){
     inquirer.prompt([
         {
             type: 'input',
@@ -149,10 +150,10 @@ async function viewRoles(){
     prompts(); 
 };
 
-async function viewEmployees(){
+function viewEmployees(){
     const sql = `SELECT * FROM employee`;
 
-    const rows = await db.query(sql);
+    const rows = db.query(sql);
     console.table(rows); 
     prompts();
 }
@@ -162,7 +163,7 @@ function addDepartment(){
     const departmentName = getDepartmentName();
     console.log(departmentName);
     const sql = `INSERT INTO department (name) VALUES = ?`;
-    const rows = db.query(sql, departmentName);
+    db.query(sql, departmentName);
     console.log(`New department added named ${departmentName}`);
     prompts();  
 }
@@ -178,7 +179,8 @@ async function addRole() {
     prompts();
 }
 
-async function addEmployee(employee){
+async function addEmployee(){
+    const employee = employeeInfo(); 
     const roleId = await employee.role;
     const managerId = await employee.manager;
     const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
