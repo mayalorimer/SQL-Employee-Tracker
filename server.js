@@ -1,34 +1,18 @@
 // importing all the needed packages
-const express = require('express');
-const Sequelize = require('sequelize');
 const mysql = require('mysql2'); 
 const inquirer = require('inquirer');
 const console = require('console');
 
-require('dotenv').config(); 
+const db = require('./db/connection');
+
 
 const PORT = process.env.PROT || 3001;
-const app = express();
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-
-const db = new Sequelize(
-    process.env.DB_NAME,
-    process.env.DB_USER,
-    process.env.DB_PASSWORD,
-    {
-        host: 'localhost',
-        dialect: 'mysql',
-        port: 3306
-    },
-    console.log("Connected to the buisness database")
-);
 
 
 //function for inquirer prompts for app
 async function prompts(){
-    return inquirer.prompt([
+    inquirer.prompt([
         {
             type: "list",
             message: "What would you like to do",
@@ -45,40 +29,37 @@ async function prompts(){
             ]
         }
     ])
+    .then(answers => {
+        response(answers)
+    })
 }
 
+prompts();
 // function to determine what to do based on initial answer choice
-function response(action) {
-    if (action === "View employees"){
+function response(answers) {
+    if (answers.action === "View employees"){
         viewEmployees();
-        prompts(); 
     }
-    else if(action === "View roles"){
+    else if(answers.action === "View roles"){
         viewRoles();
-        prompts(); 
     }
-    else if(action === "View departments"){
+    else if(answers.action === "View departments"){
         viewDepartment(); 
-        prompts();
     }
-    else if(action === "Add department"){ 
-        const depName = getDepartmentName(); 
-        addDepartment(depName);
-        console.log(depName); 
-        prompts();
+    else if(answers.action === "Add department"){ 
+        addDepartment();
+        console.log("test"); 
     }
-    else if(action === "Add role"){
+    else if(answers.action === "Add role"){
         addRole();
-        prompts();
     }
-    else if(action === "Add employee"){
+    else if(answers.action === "Add employee"){
         addEmployee();
-        prompts();
     }
-    else if(action === "Edit employee"){
+    else if(answers.action === "Edit employee"){
         editEmployee();
-        prompts();
     }
+    // exit the program if exit is chosen
     else {
         db.close(); 
         return; 
@@ -87,38 +68,39 @@ function response(action) {
 
 
 async function getDepartmentName(){
-    return inquirer.prompt([
+    inquirer.prompt([
         {
             type: 'input',
             message: "What is the new department name?",
             name: 'departmentName'
         }
     ])
+    .then(answers => {
+        return answers.departmentName;
+    })
 }
 
-db.query('SELECT * FROM department', function (err, results){
-    console.log(results); 
-})
 
 async function viewDepartment() {
     // select all the departments
     const sql = `SELECT * FROM department`;
 
-    // asks the query then returns the data in a table
-    db.query(sql, function (err, results) {
-        console.table(results); 
-    })
     const rows = await db.query(sql);
-    console.table(rows); 
+    console.table(rows);  
     //do I have to return rows???
+    prompts();
 };
 
-async function viewRoles(){
+function viewRoles(){
     // select all the roles 
     const sql = `SELECT * FROM role`;
 
-    const rows = await db.query(sql);
-    console.table(rows); 
+    db.query(sql, (err, rows) => {
+        if (err) throw err;
+        console.table(rows); 
+        prompts();
+    });
+
 };
 
 async function viewEmployees(){
@@ -126,14 +108,17 @@ async function viewEmployees(){
 
     const rows = await db.query(sql);
     console.table(rows); 
+    prompts();
 }
 
 // function to add a new department
-async function addDepartment(department){
-    const departmentName = department.name;
+function addDepartment(){
+    const departmentName = getDepartmentName();
+    console.log(departmentName);
     const sql = `INSERT INTO department (name) VALUES = ?`;
-    const rows = await db.query(sql, departmentName);
+    const rows = db.query(sql, departmentName);
     console.log(`New department added named ${departmentName}`);
+    prompts();
 }
 
 async function addRole(role) {
@@ -143,6 +128,7 @@ async function addRole(role) {
     const sql = `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`;
     const rows = await db.query(sql, [title, salary, departmentId]);
     console.log(`Added role ${title}`); 
+    prompts();
 }
 
 async function addEmployee(employee){
@@ -152,25 +138,16 @@ async function addEmployee(employee){
     const args = [employee.first_name, employee.last_name, roleId, managerId];
     const rows = await db.query(sql, args);
     console.log(`${employee.first_name} ${employee.last_name} was added`);
+    prompts();
 }
 
 // prompted to select an employee to update and their new role which is then updated in the database
 async function editEmployee(employeeInfo){
 
+
+  //  prompts();
 }
     
 
-
-
-
-
-// Default response for any other request (Not found)
-app.use((req, res) => {
-    res.status(404).end();
-});
-
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
 
 
