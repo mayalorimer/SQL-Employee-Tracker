@@ -17,4 +17,4 @@ This command line application can be used to interact with a buisness database. 
 
 ## Links
 - Github Repo: https://github.com/mayalorimer/SQL-Employee-Tracker 
-- Youtube walkthrough: 
+- Youtube walkthrough: https://www.youtube.com/watch?v=uTKLWDjMB8A 
