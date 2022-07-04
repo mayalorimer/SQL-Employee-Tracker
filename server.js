@@ -85,8 +85,7 @@ async function viewRoles(){
     const sql = `SELECT * FROM role`;
 
     const rows = await db.promise().query(sql);
-    let role = rows;
-    console.table(role); 
+    console.table(rows); 
     prompts(); 
 };
 
@@ -182,11 +181,15 @@ async function addEmployee(){
 }
 
 // prompted to select an employee to update and their new role which is then updated in the database
-function editEmployee(){
-    db.promise().query('SELECT * FROM employee', (err, data) => {
-        if (err) throw err; 
-        const employeeList = data.map(({ id, first_name, last_name}) => ({ name: first_name + " " + last_name, value: id }));
-        inquirer.prompt([
+async function editEmployee(){
+    const rows =  await db.promise().query('SELECT * FROM employee');
+    console.table(rows);
+
+    let employeeList = []; 
+    for(let i = 0; i < employees.length; i++){
+        employeeList.push(employees[i].first_name + " " + employees[i].last_name);
+    }
+         inquirer.prompt([
             {
               type: 'list',
               name: 'Employeename',
@@ -199,10 +202,10 @@ function editEmployee(){
                 message: "What is the employee's new role?"
             }
           ])
-    });
+    };
 
   //  prompts();
-}
+
     
 
 
