@@ -73,10 +73,12 @@ function response(answers) {
 async function viewDepartment() {
     // select all the departments
     const sql = `SELECT * FROM department`;
-
-    const rows = await db.promise().query(sql);
-    console.table(rows);  
-    //do I have to return rows???
+    await db.promise().query(sql)
+    .then(([rows])=>{
+        let department = rows;
+        console.log("\n");
+        console.table(department);
+    })
     prompts();
 };
 
@@ -84,16 +86,24 @@ async function viewRoles(){
     // select all the roles 
     const sql = `SELECT * FROM role`;
 
-    const rows = await db.promise().query(sql);
-    console.table(rows); 
-    prompts(); 
+    await db.promise().query(sql)
+    .then(([rows])=>{
+        let roles = rows;
+        console.log("\n");
+        console.table(roles);
+    })
+    prompts();
 };
 
 async function viewEmployees(){
     const sql = `SELECT * FROM employee`;
 
-    const rows = await db.promise().query(sql);
-    console.table(rows); 
+    await db.promise().query(sql)
+    .then(([rows])=>{
+        let employee = rows;
+        console.log("\n");
+        console.table(employee);
+    })
     prompts();
 }
 
@@ -182,17 +192,18 @@ async function addEmployee(){
 
 // prompted to select an employee to update and their new role which is then updated in the database
 async function editEmployee(){
-    const rows =  await db.promise().query('SELECT * FROM employee');
-    console.table(rows);
-
-    let employeeList = []; 
-    for(let i = 0; i < employees.length; i++){
-        employeeList.push(employees[i].first_name + " " + employees[i].last_name);
-    }
-         inquirer.prompt([
+    const sql = 'SELECT * FROM employee';
+    await db.promise().query(sql)
+    .then(([rows])=>{
+        let employees = rows;
+        const employeeList = []; 
+        for(let i = 0; i < employees.length; i++){
+            employeeList.push(employees[i].first_name + " " + employees[i].last_name);
+        }
+        inquirer.prompt([
             {
               type: 'list',
-              name: 'Employeename',
+              name: 'employeeName',
               message: "Which employee would you like to update?",
               choices: employeeList
             },
@@ -202,9 +213,19 @@ async function editEmployee(){
                 message: "What is the employee's new role?"
             }
           ])
-    };
+          .then(res => {
+            let role_id =  parseInt(res.role);
+            let employee = res.employeeName;
+  
+    
+            db.promise().query("UPDATE employee SET role_id = ? WHERE first_name = ?", [role_id, 'Greg'])
+                .then(() => console.log("New employee added to the database"))
+                .then(() => prompts())
+        })
+    })
 
-  //  prompts();
+
+}
 
     
 
