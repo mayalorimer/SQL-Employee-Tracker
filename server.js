@@ -5,6 +5,7 @@ const console = require('console');
 //require('dotenv').config();
 
 const db = require('./db/connection');
+const { query } = require('./db/connection');
 //const sequelize = require('sequelize');
 
 
@@ -69,71 +70,6 @@ function response(answers) {
 }
 
 
-function getDepartmentName(){
-    inquirer.prompt([
-        {
-            type: 'input',
-            message: "What is the new department name?",
-            name: 'departmentName'
-        }
-    ])
-    .then(answers => {
-        console.log('test');
-        return answers.departmentName;
-    })
-}
-
-async function roleInfo(){
-    inquirer.prompt([
-        {
-            type: 'input',
-            message: "What is the new role name?",
-            name: 'name'
-        },
-        {
-            type: 'input',
-            message: "What is the salary for the new role",
-            name: 'salary'
-        },
-        {
-            type: 'input',
-            message: "What is the department of the role?",
-            name: 'department'
-        }
-    ])
-    .then(answers => {
-        return answers;
-    })
-}
-
-async function employeeInfo(){
-    inquirer.prompt([
-        {
-            type: 'input',
-            message: "What is the first name?",
-            name: 'firstName'
-        },
-        {
-            type: 'input',
-            message: "What is the last name",
-            name: 'lastName'
-        },
-        {
-            type: 'input',
-            message: "What is the new employee's role?",
-            name: 'role'
-        },
-        {
-            type: 'input',
-            message: "Who is the new employee's manager?",
-            name: 'manager'
-        }
-    ])
-    .then(answers => {
-        response(answers)
-    })
-}
-
 async function viewDepartment() {
     // select all the departments
     const sql = `SELECT * FROM department`;
@@ -179,37 +115,91 @@ function addDepartment(){
           prompts())
       })
 
-/*     const sql = `INSERT INTO department (name) VALUES = ?`;
-    db.query(sql, departmentName);
-    console.log(`New department added named ${departmentName}`);
-    prompts();   */
 };
 
-async function addRole() {
-    const role = roleInfo(); 
-    const departmentId = await role.department;
-    const salary = role.salary;
-    const name = role.title;
-    const sql = `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`;
-    const rows = await db.promise().query(sql, [name, salary, departmentId]);
-    console.log(`Added role ${name}`); 
-    prompts();
-}
+function addRole() {
+    inquirer.prompt([
+        {
+            type: 'input',
+            message: "What is the new role name?",
+            name: 'name'
+        },
+        {
+            type: 'input',
+            message: "What is the salary for the new role",
+            name: 'salary'
+        },
+        {
+            type: 'input',
+            message: "What is the department of the role?",
+            name: 'department'
+        }
+    ])
+    .then(res => {
+        let name =  res.name;
+        let salary = parseInt(res.salary);
+        let department = parseInt(res.department); 
+
+        db.promise().query("INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)", [name, salary, department])
+            .then(() => console.log("New role added to the database"))
+            .then(() => prompts())
+    })
+};
 
 async function addEmployee(){
-    const employee = employeeInfo(); 
-    const roleId = await employee.role;
-    const managerId = await employee.manager;
-    const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
-    const args = [employee.first_name, employee.last_name, roleId, managerId];
-    const rows = await db.promise().query(sql, args);
-    console.log(`${employee.first_name} ${employee.last_name} was added`);
-    prompts();
+    inquirer.prompt([
+        {
+            type: 'input',
+            message: "What is the first name?",
+            name: 'firstName'
+        },
+        {
+            type: 'input',
+            message: "What is the last name",
+            name: 'lastName'
+        },
+        {
+            type: 'input',
+            message: "What is the new employee's role?",
+            name: 'role'
+        },
+        {
+            type: 'input',
+            message: "Who is the new employee's manager?",
+            name: 'manager'
+        }
+    ])
+    .then(res => {
+        let name =  res.firstName;
+        let lastName = res.lastName
+        let role = parseInt(res.role);
+        let manager = parseInt(res.manager); 
+
+        db.promise().query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)", [name, lastName, role, manager])
+            .then(() => console.log("New employee added to the database"))
+            .then(() => prompts())
+    })
 }
 
 // prompted to select an employee to update and their new role which is then updated in the database
-async function editEmployee(employeeInfo){
-
+function editEmployee(){
+    db.promise().query('SELECT * FROM employee', (err, data) => {
+        if (err) throw err; 
+        const employeeList = data.map(({ id, first_name, last_name}) => ({ name: first_name + " " + last_name, value: id }));
+        inquirer.prompt([
+            {
+              type: 'list',
+              name: 'Employeename',
+              message: "Which employee would you like to update?",
+              choices: employeeList
+            },
+            {
+                type: "input",
+                name: "role",
+                message: "What is the employee's new role?"
+            }
+          ])
+    });
 
   //  prompts();
 }
