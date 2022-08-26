@@ -2,7 +2,7 @@
 
 ## Description
 
-This command line application can be used to interact with a buisness database. The program canbe sued to view the roles, employees, and department, add more items to each of these tables, or edit an employee. 
+This command line application can be used to interact with a buisness database. The program can be used to view the roles, employees, and department, add more items to each of these tables, or edit an employee. 
 
 ![Screnshot](./Screen%20Shot%202022-07-29%20at%209.59.58%20PM.png)
 
